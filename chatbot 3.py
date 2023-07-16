@@ -1,10 +1,10 @@
+# Import Statements
 import random
-import tkinter as tk
-from tkinter import simpledialog, messagebox
+from tkinter import *
 import openai
 
-
-openai.api_key = "Ysk-KDDssijKNiMfmKR5OdLQT3BlbkFJyqIXrshRNzo6lbF7KKRZ"
+# Open AI Api Key Set Up
+#openai.api_key = "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"
 
 responses = {
     "hi": ["Hello!", "Hi there!", "Hey!"],
@@ -47,46 +47,62 @@ responses = {
     "thank you": ["You're welcome!", "No problem! It's my pleasure to help.", "You're welcome. If you have any more questions, feel free to ask!"],
 }
 
-
-def chatbot_response(user_input):
-    user_input = user_input.lower()
-    for key in responses:
-        if key in user_input:
-            return random.choice(responses[key])
-
-    try:
-        response = openai.Completion.create(
-            engine="davinci",  
-            prompt=user_input,
-            max_tokens=5  
-        )
-        return response["choices"][0]["text"].strip()
-    except Exception as e:
-        print("Error:", e)
-        return "I'm sorry, I don't understand. Can you please say that again?"
-
+# Send Message Functions
 def send_message():
-    user_input = user_entry.get()
-    user_entry.delete(0, tk.END)
-    if user_input.lower() == "quit":
+    user_input = user_entry.get() # Gets The Users Input
+    user_entry.delete(0, END) # Edits User Functions
+    if user_input.lower() == "quit": # Checks To See If User Wants To Quit
         root.quit()
         return
-    response = chatbot_response(user_input)
-    chat_window.config(state=tk.NORMAL)
-    chat_window.insert(tk.END, f"You: {user_input}\n", "user")
-    chat_window.insert(tk.END, f"Kala: {response}\n", "bot")
-    chat_window.config(state=tk.DISABLED)
-    chat_window.see(tk.END)
+    response = chatbot_response(user_input) # Gets The Response From Chatbot
 
+    # Configures The Response For The Windows
+    chat_window.config(state=NORMAL)
+    chat_window.insert(END, f"You: {user_input}\n", "user")
+    chat_window.insert(END, f"Kala: {response}\n", "bot")
+    chat_window.config(state=DISABLED)
+    chat_window.see(END)
+
+# Closes Chat Upon Request
 def close_chat():
     if messagebox.askokcancel("Kala, AI", "Are you sure you want to quit?"):
         root.quit()
 
-root = tk.Tk()
-root.title("ChatBot - Kala")
+# Chatbot Response
+def chatbot_response(user_input):
+    # Turn The User Input Into Lowercase Character
+    user_input = user_input.lower()
+    for key in responses:
+        if key in user_input:
+            return random.choice(responses[key])
+    '''
+    try:
+        # Generates Open AI Response
+        response = openai.Completion.create(
+            engine="gpt-3.5-turbo",
+            prompt=user_input,
+            max_tokens=150,
+            temperature=0.9,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0.6,
+            stop=['Human:', 'AI:']
+        )
 
+        # Returns The Response From Open AI
+        return response["choices"][0]["text"]
 
+    # Upon Error, It Will Return Error
+    except Exception as e:
+        print("Error:", e)
+        return "I'm sorry, I don't understand. Can you please say that again?"
+    '''
 
+# Generate Tkinter Enviornment
+root = Tk()
+root.title("ChatBot - Kala") # Labels Chatbot - Kala
+
+# Colors For GUI
 bg_color = "gold"
 chat_bg_color = "black"
 user_font = ("Times", 20, "bold")
@@ -94,34 +110,31 @@ bot_font = ("Merriweather", 20)
 user_color = "red"
 bot_color = "black"
 
-chat_frame = tk.Frame(root)
-chat_frame.pack(fill=tk.BOTH, expand=True)
+# Generate The GUI
+chat_frame = Frame(root)
+chat_frame.pack(fill=BOTH, expand=True)
 
-
-chat_window = tk.Text(root, bg="lightgrey", wrap=tk.WORD,font=bot_font,)
+# Sets Up GUI Enviornment
+chat_window = Text(root, bg="lightgrey", wrap=WORD,font=bot_font,)
 chat_window.tag_configure("user", foreground="black",font=bot_font,)
 chat_window.tag_configure("bot", foreground="darkslategrey",font=bot_font)
-chat_window.pack(padx=25, pady=25, fill=tk.BOTH, expand=True)
-chat_window.config(state=tk.DISABLED)
+chat_window.pack(padx=25, pady=25, fill=BOTH, expand=True)
+chat_window.config(state=DISABLED)
 
-
-scrollbar = tk.Scrollbar(chat_frame, command=chat_window.yview)
-scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
+# GUI Scrollbar Config
+scrollbar = Scrollbar(chat_frame, command=chat_window.yview)
+scrollbar.pack(side=RIGHT, fill=Y)
 chat_window.config(yscrollcommand=scrollbar.set)
 
+# GUI User Entry Set Up
+user_entry = Entry(root, bg="cadetblue",font=bot_font, fg=bot_color)
+user_entry.pack(padx=10, pady=15, fill=BOTH)
 
+# GUI Send Button Set Up
+send_button = Button(root, text="SEND", font=("Verdana", 25, "bold"), fg="teal", bg="lightcoral", command=send_message)
+send_button.pack(padx=10, pady=5, fill=BOTH)
 
-user_entry = tk.Entry(root, bg="cadetblue",font=bot_font, fg=bot_color)
-user_entry.pack(padx=10, pady=15, fill=tk.BOTH)
-
-
-send_button = tk.Button(root, text="SEND", font=("Verdana", 25, "bold"), fg="teal", bg="lightcoral", command=send_message)
-send_button.pack(padx=10, pady=5, fill=tk.BOTH)
-
+# GUI End And Start
 root.bind("<Return>", lambda event: send_message())
-n
 root.protocol("WM_DELETE_WINDOW", close_chat)
-
 root.mainloop()
-
